@@ -17,7 +17,8 @@ const filtersSlice = createSlice({
   initialState,
   reducers: {
     setFilter: (state, action: PayloadAction<Partial<ExpenseFilters>>) => {
-      return { ...state, ...action.payload, page: action.payload.page ?? 1 };
+      const { page, ...rest } = action.payload;
+      return { ...state, ...rest, page: page ?? (Object.keys(rest).length > 0 ? 1 : state.page) };
     },
     resetFilters: () => initialState,
   },

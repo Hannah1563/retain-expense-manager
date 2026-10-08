@@ -52,6 +52,10 @@ export interface PaginatedExpenses {
   pages: number;
 }
 
+export interface AdminExpense extends Omit<Expense, 'user'> {
+  user: Pick<User, '_id' | 'name' | 'email'>;
+}
+
 export interface AdminInsights {
   totalUsers: number;
   totalExpenses: number;
@@ -60,6 +64,6 @@ export interface AdminInsights {
   spendingByCategory: { _id: string; name: string; total: number; count: number }[];
   top5Categories: { _id: string; name: string; total: number; count: number }[];
   bottom5Categories: { _id: string; name: string; total: number; count: number }[];
-  recentExpenses: Expense[];
+  recentExpenses: AdminExpense[];
   recentUsers: User[];
 }

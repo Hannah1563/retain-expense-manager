@@ -7,7 +7,7 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
-import { AdminInsights, Category } from '../types';
+import { AdminInsights, AdminExpense, Category } from '../types';
 import api from '../api/axios';
 
 function CategoryManager() {
@@ -108,12 +108,17 @@ function StatCard({ label, value }: { label: string; value: string | number }) {
 export default function Admin() {
   const [insights, setInsights] = useState<AdminInsights | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    api.get('/admin/insights').then((r) => setInsights(r.data)).finally(() => setLoading(false));
+    api.get('/admin/insights')
+      .then((r) => setInsights(r.data))
+      .catch(() => setError('Failed to load insights'))
+      .finally(() => setLoading(false));
   }, []);
 
   if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', mt: 8 }}><CircularProgress /></Box>;
+  if (error) return <Alert severity="error">{error}</Alert>;
 
   return (
     <Box>
@@ -153,11 +158,11 @@ export default function Admin() {
         <Grid size={{ xs: 12, md: 6 }}>
           <Paper sx={{ p: 2 }}>
             <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>Recently Added Expenses</Typography>
-            {insights!.recentExpenses.map((e) => (
+            {insights!.recentExpenses.map((e: AdminExpense) => (
               <Box key={e._id} sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                 <Box>
                   <Typography variant="body2">{e.title}</Typography>
-                  <Typography variant="caption" color="text.secondary">{(e.user as any)?.name}</Typography>
+                  <Typography variant="caption" color="text.secondary">{e.user.name}</Typography>
                 </Box>
                 <Typography sx={{ fontWeight: 600 }}>${e.amount.toFixed(2)}</Typography>
               </Box>

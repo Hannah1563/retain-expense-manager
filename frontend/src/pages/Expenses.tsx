@@ -13,6 +13,7 @@ import { setFilter, resetFilters } from '../store/slices/filtersSlice';
 import { Expense, Category, PaginatedExpenses } from '../types';
 import api from '../api/axios';
 import ExpenseForm from '../components/expenses/ExpenseForm';
+import ExpenseCard from '../components/expenses/ExpenseCard';
 
 const PAYMENT_METHODS = ['cash', 'credit_card', 'debit_card', 'bank_transfer', 'other'];
 
@@ -93,7 +94,15 @@ export default function Expenses() {
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}><CircularProgress /></Box>
       ) : (
         <>
-          <TableContainer component={Paper}>
+          {/* Mobile card view */}
+          <Box sx={{ display: { xs: 'block', md: 'none' } }}>
+            {data?.expenses.length === 0 && <Typography color="text.secondary" sx={{ mt: 2 }}>No expenses found</Typography>}
+            {data?.expenses.map((e) => (
+              <ExpenseCard key={e._id} expense={e} onEdit={(exp) => { setEditing(exp); setFormOpen(true); }} onDelete={handleDelete} />
+            ))}
+          </Box>
+          {/* Desktop table view */}
+          <TableContainer component={Paper} sx={{ display: { xs: 'none', md: 'block' } }}>
             <Table>
               <TableHead>
                 <TableRow>
