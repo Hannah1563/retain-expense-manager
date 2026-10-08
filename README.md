@@ -2,8 +2,8 @@
 
 A full-stack web application for managing personal expenses and monthly budgets.
 
-🚀 **Live App:** _coming soon_
-🔗 **API Base URL:** _coming soon_
+🚀 **Live App:** https://retain-expense-manager.vercel.app
+🔗 **API Base URL:** https://retain-backend-oky1.onrender.com/api
 
 ---
 
