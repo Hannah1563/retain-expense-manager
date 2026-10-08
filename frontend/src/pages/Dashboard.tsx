@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Grid, Paper, Typography, Box, Chip, CircularProgress, LinearProgress } from '@mui/material';
+import { Grid, Paper, Typography, Box, Chip, CircularProgress, LinearProgress, Alert } from '@mui/material';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
@@ -15,13 +15,14 @@ interface DashboardData {
 
 export default function Dashboard() {
   const now = new Date();
+  const month = now.getMonth() + 1;
+  const year = now.getFullYear();
   const [data, setData] = useState<DashboardData | null>(null);
   const [budget, setBudget] = useState<Budget | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    const month = now.getMonth() + 1;
-    const year = now.getFullYear();
     const start = new Date(year, month - 1, 1).toISOString();
     const end = new Date(year, month, 0, 23, 59, 59).toISOString();
 
@@ -40,10 +41,12 @@ export default function Dashboard() {
       });
       setData({ totalSpent, highestExpense, recentExpenses: expenses.slice(0, 5), byCategory: [...categoryMap.values()] });
       setBudget(budRes.data);
-    }).finally(() => setLoading(false));
+    }).catch(() => setError('Failed to load dashboard data'))
+      .finally(() => setLoading(false));
   }, []);
 
   if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', mt: 8 }}><CircularProgress /></Box>;
+  if (error) return <Alert severity="error">{error}</Alert>;
 
   const budgetPercent = budget ? Math.min((data!.totalSpent / budget.amount) * 100, 100) : 0;
   const budgetStatus = !budget ? null : budgetPercent >= 100 ? 'error' : budgetPercent >= 80 ? 'warning' : 'success';

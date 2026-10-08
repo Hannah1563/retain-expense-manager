@@ -1,4 +1,4 @@
-import { useState, FormEvent } from 'react';
+import { useState, useEffect, FormEvent } from 'react';
 import {
   Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField,
   MenuItem, Box, Alert,
@@ -17,13 +17,25 @@ interface Props {
 }
 
 export default function ExpenseForm({ open, onClose, onSaved, categories, expense }: Props) {
-  const [title, setTitle] = useState(expense?.title || '');
-  const [amount, setAmount] = useState(expense?.amount?.toString() || '');
-  const [category, setCategory] = useState(expense?.category._id || '');
-  const [date, setDate] = useState(expense?.date ? expense.date.slice(0, 10) : new Date().toISOString().slice(0, 10));
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(expense?.paymentMethod || 'cash');
-  const [notes, setNotes] = useState(expense?.notes || '');
+  const [title, setTitle] = useState('');
+  const [amount, setAmount] = useState('');
+  const [category, setCategory] = useState('');
+  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cash');
+  const [notes, setNotes] = useState('');
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (open) {
+      setTitle(expense?.title || '');
+      setAmount(expense?.amount?.toString() || '');
+      setCategory(expense?.category._id || '');
+      setDate(expense?.date ? expense.date.slice(0, 10) : new Date().toISOString().slice(0, 10));
+      setPaymentMethod(expense?.paymentMethod || 'cash');
+      setNotes(expense?.notes || '');
+      setError('');
+    }
+  }, [open, expense]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
