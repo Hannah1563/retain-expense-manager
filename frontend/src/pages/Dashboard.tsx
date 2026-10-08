@@ -1,10 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Grid, Paper, Typography, Box, Chip, CircularProgress, LinearProgress, Alert } from '@mui/material';
-import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
-import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import api from '../api/axios';
 import { Expense, Budget, Category } from '../types';
+import StatCard from '../components/dashboard/StatCard';
 
 interface DashboardData {
   totalSpent: number;
@@ -22,10 +21,9 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  useEffect(() => {
+  const fetchData = useCallback(() => {
     const start = new Date(year, month - 1, 1).toISOString();
     const end = new Date(year, month, 0, 23, 59, 59).toISOString();
-
     Promise.all([
       api.get('/expenses', { params: { startDate: start, endDate: end, limit: 100 } }),
       api.get('/budget', { params: { month, year } }),
@@ -43,7 +41,9 @@ export default function Dashboard() {
       setBudget(budRes.data);
     }).catch(() => setError('Failed to load dashboard data'))
       .finally(() => setLoading(false));
-  }, []);
+  }, [month, year]);
+
+  useEffect(() => { fetchData(); }, [fetchData]);
 
   if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', mt: 8 }}><CircularProgress /></Box>;
   if (error) return <Alert severity="error">{error}</Alert>;
@@ -58,13 +58,7 @@ export default function Dashboard() {
       </Typography>
       <Grid container spacing={3}>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <Paper sx={{ p: 2 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-              <TrendingUpIcon color="primary" />
-              <Typography variant="body2" color="text.secondary">Total Spent</Typography>
-            </Box>
-            <Typography variant="h5" sx={{ fontWeight: 700 }}>${data?.totalSpent.toFixed(2)}</Typography>
-          </Paper>
+          <StatCard label="Total Spent" value={`$${data?.totalSpent.toFixed(2)}`} />
         </Grid>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <Paper sx={{ p: 2 }}>
@@ -81,18 +75,7 @@ export default function Dashboard() {
           </Paper>
         </Grid>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <Paper sx={{ p: 2 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-              <ReceiptLongIcon color="primary" />
-              <Typography variant="body2" color="text.secondary">Highest Expense</Typography>
-            </Box>
-            {data?.highestExpense ? (
-              <>
-                <Typography variant="h5" sx={{ fontWeight: 700 }}>${data.highestExpense.amount.toFixed(2)}</Typography>
-                <Typography variant="body2" color="text.secondary">{data.highestExpense.title}</Typography>
-              </>
-            ) : <Typography>None</Typography>}
-          </Paper>
+          <StatCard label="Highest Expense" value={data?.highestExpense ? `$${data.highestExpense.amount.toFixed(2)}` : 'None'} />
         </Grid>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <Paper sx={{ p: 2 }}>

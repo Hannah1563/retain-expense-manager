@@ -1,4 +1,4 @@
-import { useEffect, useState, FormEvent } from 'react';
+import { useEffect, useState, FormEvent, useCallback } from 'react';
 import {
   Box, Typography, Grid, Paper, Button, TextField, IconButton,
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
@@ -9,6 +9,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import { AdminInsights, AdminExpense, Category } from '../types';
 import api from '../api/axios';
+import StatCard from '../components/dashboard/StatCard';
 
 function CategoryManager() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -18,8 +19,10 @@ function CategoryManager() {
   const [color, setColor] = useState('#1976d2');
   const [error, setError] = useState('');
 
-  const fetch = () => api.get('/categories').then((r) => setCategories(r.data));
-  useEffect(() => { fetch(); }, []);
+  const fetchCategories = useCallback(() => {
+    api.get('/categories').then((r) => setCategories(r.data));
+  }, []);
+  useEffect(() => { fetchCategories(); }, [fetchCategories]);
 
   const openForm = (cat?: Category) => {
     setEditing(cat || null);
@@ -35,7 +38,7 @@ function CategoryManager() {
     try {
       if (editing) await api.put(`/categories/${editing._id}`, { name, color });
       else await api.post('/categories', { name, color });
-      fetch();
+      fetchCategories();
       setOpen(false);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to save');
@@ -45,7 +48,7 @@ function CategoryManager() {
   const handleDelete = async (id: string) => {
     if (!confirm('Delete this category?')) return;
     await api.delete(`/categories/${id}`);
-    fetch();
+    fetchCategories();
   };
 
   return (
@@ -96,15 +99,6 @@ function CategoryManager() {
   );
 }
 
-function StatCard({ label, value }: { label: string; value: string | number }) {
-  return (
-    <Paper sx={{ p: 2 }}>
-      <Typography variant="body2" color="text.secondary">{label}</Typography>
-      <Typography variant="h5" sx={{ fontWeight: 700 }}>{value}</Typography>
-    </Paper>
-  );
-}
-
 export default function Admin() {
   const [insights, setInsights] = useState<AdminInsights | null>(null);
   const [loading, setLoading] = useState(true);
@@ -133,10 +127,27 @@ export default function Admin() {
 
         <Grid size={{ xs: 12, md: 6 }}>
           <Paper sx={{ p: 2 }}>
-            <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>Top 5 Categories</Typography>
-            {insights!.top5Categories.map((c) => (
+            <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>Spending per Category</Typography>
+            {insights!.spendingByCategory.length === 0 && <Typography color="text.secondary">No data yet</Typography>}
+            {insights!.spendingByCategory.map((c) => (
               <Box key={c._id} sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                 <Typography>{c.name}</Typography>
+                <Box sx={{ textAlign: 'right' }}>
+                  <Typography sx={{ fontWeight: 600 }}>${c.total.toFixed(2)}</Typography>
+                  <Typography variant="caption" color="text.secondary">{c.count} expenses</Typography>
+                </Box>
+              </Box>
+            ))}
+          </Paper>
+        </Grid>
+
+        <Grid size={{ xs: 12, md: 6 }}>
+          <Paper sx={{ p: 2 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>Top 5 Categories</Typography>
+            {insights!.top5Categories.length === 0 && <Typography color="text.secondary">No data yet</Typography>}
+            {insights!.top5Categories.map((c, i) => (
+              <Box key={c._id} sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                <Typography>#{i + 1} {c.name}</Typography>
                 <Typography sx={{ fontWeight: 600 }}>{c.count} expenses</Typography>
               </Box>
             ))}
@@ -146,9 +157,10 @@ export default function Admin() {
         <Grid size={{ xs: 12, md: 6 }}>
           <Paper sx={{ p: 2 }}>
             <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>Bottom 5 Categories</Typography>
-            {insights!.bottom5Categories.map((c) => (
+            {insights!.bottom5Categories.length === 0 && <Typography color="text.secondary">No data yet</Typography>}
+            {insights!.bottom5Categories.map((c, i) => (
               <Box key={c._id} sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                <Typography>{c.name}</Typography>
+                <Typography>#{i + 1} {c.name}</Typography>
                 <Typography sx={{ fontWeight: 600 }}>{c.count} expenses</Typography>
               </Box>
             ))}
@@ -158,6 +170,7 @@ export default function Admin() {
         <Grid size={{ xs: 12, md: 6 }}>
           <Paper sx={{ p: 2 }}>
             <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>Recently Added Expenses</Typography>
+            {insights!.recentExpenses.length === 0 && <Typography color="text.secondary">No expenses yet</Typography>}
             {insights!.recentExpenses.map((e: AdminExpense) => (
               <Box key={e._id} sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                 <Box>
