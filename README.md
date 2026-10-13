@@ -3,7 +3,6 @@
 A full-stack web application for managing personal expenses and monthly budgets.
 
 **Live App:** https://retain-expense-manager.vercel.app
-**Backend:** https://retain-backend-oky1.onrender.com
 **GitHub:** https://github.com/Hannah1563/retain-expense-manager
 
 ---
