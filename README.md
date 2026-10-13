@@ -2,8 +2,8 @@
 
 A full-stack web application for managing personal expenses and monthly budgets.
 
-**Live App:** https://retain-expense-manager.vercel.app
-**GitHub:** https://github.com/Hannah1563/retain-expense-manager
+**Live App:** [https://retain-expense-manager.vercel.app](https://retain-expense-manager.vercel.app)
+**GitHub:** [https://github.com/Hannah1563/retain-expense-manager](https://github.com/Hannah1563/retain-expense-manager)
 
 ---
 
@@ -175,5 +175,9 @@ db.users.updateOne({ email: "your@email.com" }, { $set: { role: "admin" } })
 
 ## Deployment
 
-- **Frontend:** [Vercel](https://vercel.com) — set `VITE_API_URL` in environment variables
-- **Backend:** [Render](https://render.com) — set `MONGO_URI`, `JWT_SECRET`, `PORT` in environment variables
+- **Frontend:** Deployed on [Vercel](https://vercel.com) — [https://retain-expense-manager.vercel.app](https://retain-expense-manager.vercel.app)
+- **Backend:** Deployed on [Render](https://render.com) — [https://retain-backend-oky1.onrender.com](https://retain-backend-oky1.onrender.com)
+
+Environment variables required:
+- Frontend: `VITE_API_URL`
+- Backend: `MONGO_URI`, `JWT_SECRET`, `PORT`
