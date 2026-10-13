@@ -4,39 +4,60 @@ A full-stack web application for managing personal expenses and monthly budgets.
 
 🚀 **Live App:** https://retain-expense-manager.vercel.app
 🔗 **API Base URL:** https://retain-backend-oky1.onrender.com/api
+📁 **GitHub:** https://github.com/Hannah1563/retain-expense-manager
 
 ---
 
-## Features
+## Main Features
 
 ### User
 - Sign up, sign in, sign out with JWT authentication
 - Create, view, update, and delete personal expenses
-- Filter and search expenses by category, payment method, date range, and keyword
-- Sort expenses by date or amount
-- Paginated expense list
-- Set and monitor a monthly budget (total spent, remaining, status)
-- User dashboard: total spending, remaining budget, highest expense, spending by category, recent expenses
+- Each expense includes: title, amount, category, date, payment method, and optional notes
+- Filter expenses by category, payment method, and date range
+- Search expenses by keyword
+- Sort expenses by date or amount (ascending/descending)
+- Paginated expense list (10 per page)
+- Set and monitor a monthly budget showing:
+  - Total amount spent
+  - Remaining budget
+  - Status: Within Budget / Approaching Limit / Over Budget
+- User dashboard showing:
+  - Total spending for the current month
+  - Remaining monthly budget
+  - Highest individual expense
+  - Spending by category
+  - Recent expenses
 
 ### Admin
-- Protected admin dashboard (role-based access via React Context)
+- Protected admin dashboard (role-based, React Context)
 - Create, update, and delete expense categories
-- Platform insights: total users, total expenses, total value, monthly count, spending per category, top/bottom 5 categories, recent expenses, recent users
+- Deleting a category reassigns its expenses to "Uncategorized"
+- Platform insights:
+  - Total registered users
+  - Total expenses recorded
+  - Total value of all expenses
+  - Number of expenses this month
+  - Total spending per category
+  - Top 5 most-used categories
+  - Bottom 5 least-used categories
+  - Recently added expenses
+  - Recently registered users
 
 ---
 
-## Tech Stack
+## Technologies Used
 
 ### Frontend
 | Tool | Purpose |
 |------|---------|
-| React 18 + TypeScript | UI framework |
+| React 18 + TypeScript | UI framework with type safety |
 | Vite | Build tool |
-| Material-UI v9 | Component library |
-| React Router v6 | Client-side routing |
-| Redux Toolkit | Expense filtering/searching/sorting state |
-| React Context | Authentication & protected routes |
-| Axios | HTTP client |
+| Material-UI v9 | Component library for responsive UI |
+| React Router v6 | Client-side routing & protected routes |
+| Redux Toolkit | Expense filtering, searching, sorting state |
+| React Context | Authentication, user roles, protected routes |
+| Axios | HTTP client with JWT interceptor |
 
 ### Backend
 | Tool | Purpose |
@@ -54,16 +75,16 @@ A full-stack web application for managing personal expenses and monthly budgets.
 retain-expense-manager/
 ├── frontend/               # React + TypeScript + Vite
 │   └── src/
-│       ├── api/            # Axios instance
-│       ├── components/     # Reusable components (layout, expenses)
-│       ├── context/        # AuthContext (React Context)
+│       ├── api/            # Axios instance with JWT interceptor
+│       ├── components/     # Reusable components (StatCard, ExpenseCard, ExpenseForm, Layout)
+│       ├── context/        # AuthContext — auth, roles, protected routes
 │       ├── pages/          # Login, Register, Dashboard, Expenses, Budget, Admin
 │       ├── store/          # Redux store + filtersSlice
-│       └── types/          # TypeScript interfaces
+│       └── types/          # TypeScript interfaces for all entities
 └── backend/                # Node.js + Express
     └── src/
-        ├── controllers/    # authController, expenseController, budgetController, categoryController, adminController
-        ├── middleware/      # JWT auth + admin guard
+        ├── controllers/    # auth, expense, budget, category, admin
+        ├── middleware/      # JWT auth guard + admin-only guard
         ├── models/         # User, Expense, Category, Budget
         └── routes/         # /auth, /expenses, /budget, /categories, /admin
 ```
@@ -82,8 +103,8 @@ retain-expense-manager/
 cd backend
 npm install
 cp .env.example .env
-# Edit .env with your MONGO_URI and JWT_SECRET
-npm run dev
+# Edit .env — set MONGO_URI and JWT_SECRET
+node server.js
 ```
 
 ### Frontend
@@ -94,6 +115,13 @@ npm install
 cp .env.example .env
 # Edit .env — set VITE_API_URL to your backend URL
 npm run dev
+```
+
+### Seed Default Categories
+
+```bash
+cd backend
+node seed.js
 ```
 
 ---
@@ -110,12 +138,12 @@ npm run dev
 ### Expenses
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/api/expenses` | Get expenses (supports filters, pagination, sorting) |
+| GET | `/api/expenses` | Get paginated expenses with filters |
 | POST | `/api/expenses` | Create expense |
 | PUT | `/api/expenses/:id` | Update expense |
 | DELETE | `/api/expenses/:id` | Delete expense |
 
-**Query params for GET /expenses:** `search`, `category`, `paymentMethod`, `startDate`, `endDate`, `sortBy`, `order`, `page`, `limit`
+**Query params:** `search`, `category`, `paymentMethod`, `startDate`, `endDate`, `sortBy`, `order`, `page`, `limit`
 
 ### Budget
 | Method | Endpoint | Description |
@@ -140,8 +168,6 @@ npm run dev
 
 ## Making a User an Admin
 
-After registering, update the user's role directly in MongoDB:
-
 ```js
 db.users.updateOne({ email: "your@email.com" }, { $set: { role: "admin" } })
 ```
@@ -150,5 +176,5 @@ db.users.updateOne({ email: "your@email.com" }, { $set: { role: "admin" } })
 
 ## Deployment
 
-- **Frontend:** Deployed on [Vercel](https://vercel.com) — set `VITE_API_URL` in environment variables
-- **Backend:** Deployed on [Render](https://render.com) — set `MONGO_URI`, `JWT_SECRET`, `PORT` in environment variables
+- **Frontend:** [Vercel](https://vercel.com) — set `VITE_API_URL` in environment variables
+- **Backend:** [Render](https://render.com) — set `MONGO_URI`, `JWT_SECRET`, `PORT` in environment variables

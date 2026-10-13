@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   Box, Button, TextField, MenuItem, Grid, Typography, Table, TableBody,
@@ -26,15 +26,15 @@ export default function Expenses() {
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<Expense | null>(null);
 
-  const fetchExpenses = () => {
+  const fetchExpenses = useCallback(() => {
     setLoading(true);
     api.get('/expenses', { params: { ...filters } })
       .then((r) => setData(r.data))
       .finally(() => setLoading(false));
-  };
+  }, [filters]);
 
   useEffect(() => { api.get('/categories').then((r) => setCategories(r.data)); }, []);
-  useEffect(() => { fetchExpenses(); }, [filters]);
+  useEffect(() => { fetchExpenses(); }, [fetchExpenses]);
 
   const handleDelete = async (id: string) => {
     if (!confirm('Delete this expense?')) return;
